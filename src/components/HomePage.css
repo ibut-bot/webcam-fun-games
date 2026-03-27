@@ -1,0 +1,117 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  min-height: 100svh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  gap: 32px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.home-hero {
+  max-width: 520px;
+}
+
+.home-title {
+  margin: 0 0 12px;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--accent), #e879f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home-subtitle {
+  margin: 0;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 24px 28px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  text-align: center;
+  font-family: inherit;
+  color: inherit;
+}
+
+.game-card:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent-border);
+}
+
+.game-card:not(:disabled):active {
+  transform: translateY(-1px);
+}
+
+.game-card--soon {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.game-card-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.game-card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.game-card-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+  max-width: 26ch;
+}
+
+.game-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+
+.home-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.7;
+}

@@ -17,9 +17,11 @@ const CLAP_MIN_SCORE = 0.5
 export default function PoseWebcamPanel({
   enabled,
   flapQueueRef,
+  handPositionsRef,
   onClap,
   onError,
   onModelReady,
+  statusHint,
 }) {
   const panelRef = useRef(null)
   const videoRef = useRef(null)
@@ -80,6 +82,7 @@ export default function PoseWebcamPanel({
     }
 
     function checkFlapNorm(landmarksNorm) {
+      if (!flapQueueRef) return
       const now = Date.now()
       if (now - lastFlapTime < FLAP_COOLDOWN_MS) return
 
@@ -146,7 +149,7 @@ export default function PoseWebcamPanel({
         }
 
         onModelReady?.()
-        setStatus('Raise arms up, then down to flap · Clap hands to restart after game over')
+        setStatus(statusHint || 'Raise arms up, then down to flap · Clap hands to restart after game over')
 
         const connections = poseDetection.util.getAdjacentPairs(
           poseDetection.SupportedModels.MoveNet,
@@ -270,6 +273,17 @@ export default function PoseWebcamPanel({
               } else {
                 handsWereApart = true
               }
+
+              if (handPositionsRef) {
+                handPositionsRef.current = {
+                  left: lw
+                    ? { x: lw.x * invW, y: lw.y * invH, confidence: lw.score ?? 0 }
+                    : null,
+                  right: rw
+                    ? { x: rw.x * invW, y: rw.y * invH, confidence: rw.score ?? 0 }
+                    : null,
+                }
+              }
             })
             .catch(() => {
               inferring = false
@@ -294,7 +308,7 @@ export default function PoseWebcamPanel({
       detector?.dispose()
       stream?.getTracks().forEach((t) => t.stop())
     }
-  }, [enabled, flapQueueRef, onError, onModelReady])
+  }, [enabled, flapQueueRef, handPositionsRef, onError, onModelReady, statusHint])
 
   return (
     <div ref={panelRef} className="pose-panel">

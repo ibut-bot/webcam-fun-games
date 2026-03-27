@@ -22,6 +22,22 @@
   flex-shrink: 0;
 }
 
+.back-btn {
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: inherit;
+  margin-bottom: 2px;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
 .title-block h1 {
   margin: 0 0 4px;
   font-size: clamp(1.25rem, 3.5vw, 1.75rem);
@@ -155,6 +171,51 @@
   background: linear-gradient(180deg, #4ec0ca 0%, #71c5cf 100%);
 }
 
+/* ── Fruit Ninja single-screen arena ───────────────── */
+
+.ninja-arena-wrap {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ninja-arena {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0f1419;
+}
+
+.ninja-arena .pose-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.ninja-arena .pose-canvas-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.ninja-arena .pose-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ninja-arena .fruit-ninja-game-wrap {
+  z-index: 2;
+}
+
+.ninja-arena .game-over-overlay,
+.ninja-arena .game-overlay {
+  z-index: 3;
+}
+
 .flappy-game-wrap {
   position: absolute;
   inset: 0;
@@ -170,6 +231,23 @@
   width: 100%;
   min-height: 0;
   cursor: pointer;
+}
+
+.fruit-ninja-game-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  z-index: 1;
+}
+
+.fruit-ninja-game-wrap .fruit-ninja-canvas {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  cursor: crosshair;
 }
 
 .game-ready-overlay {
