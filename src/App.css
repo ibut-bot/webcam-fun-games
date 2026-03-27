@@ -1,0 +1,353 @@
+.shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  overflow: hidden;
+}
+
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.title-block h1 {
+  margin: 0 0 4px;
+  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-h);
+}
+
+.tagline {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.score-pill {
+  align-self: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--text-h);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.banner {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.banner.error {
+  background: rgba(220, 80, 80, 0.15);
+  border: 1px solid rgba(220, 80, 80, 0.45);
+  color: var(--text-h);
+}
+
+.split {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.pane {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.pane-label {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.pane-inner {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.pose-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f1419;
+  min-height: 0;
+}
+
+.pose-canvas-wrap {
+  max-width: 100%;
+  max-height: 100%;
+  transform: scaleX(-1);
+}
+
+.pose-video {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pose-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+.pose-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #f3f4f6;
+  font-size: 0.82rem;
+  max-width: calc(100% - 24px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.game-inner {
+  background: linear-gradient(180deg, #4ec0ca 0%, #71c5cf 100%);
+}
+
+.flappy-game-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  z-index: 1;
+}
+
+.flappy-game-wrap .flappy-canvas {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  cursor: pointer;
+}
+
+.game-ready-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(10, 10, 30, 0.82);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ready-text {
+  font-size: clamp(1.1rem, 4vw, 1.8rem);
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  animation: readyPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+.game-countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.countdown-number {
+  font-size: clamp(3rem, 15vw, 7rem);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 40px rgba(100, 200, 255, 0.6);
+}
+
+.countdown-hint {
+  font-size: clamp(0.85rem, 3vw, 1.2rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.game-over-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 24px;
+  background: rgba(10, 10, 30, 0.92);
+  color: #e0e8ff;
+  text-align: center;
+  cursor: pointer;
+}
+
+.game-over-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.game-over-score {
+  margin: 0;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-over-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(15, 20, 25, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.overlay-lead {
+  margin: 0;
+  text-align: center;
+  color: #f9fafb;
+  font-size: 0.95rem;
+  max-width: 28ch;
+  line-height: 1.5;
+}
+
+.primary {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(165deg, #7c3aed, #5b21b6);
+  box-shadow: 0 4px 14px rgba(91, 33, 182, 0.35);
+}
+
+.primary:hover {
+  filter: brightness(1.06);
+}
+
+.primary:active {
+  transform: translateY(1px);
+}
+
+.foot {
+  margin-top: 8px;
+  padding-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ghost {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  background: transparent;
+  color: var(--text-h);
+}
+
+.ghost:hover {
+  background: var(--code-bg);
+}
+
+.tip {
+  margin: 0;
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--text);
+  min-width: 200px;
+}
+
+@media (max-width: 700px) {
+  .split {
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .pane {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .pane-inner {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+  }
+}
