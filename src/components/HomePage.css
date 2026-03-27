@@ -115,3 +115,27 @@
   color: var(--text);
   opacity: 0.7;
 }
+
+@media (max-width: 700px) {
+  .home {
+    padding: 24px 16px;
+    gap: 24px;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .game-card {
+    padding: 24px 18px 20px;
+  }
+
+  .game-card-icon {
+    font-size: 2.4rem;
+  }
+
+  .game-card-title {
+    font-size: 1.1rem;
+  }
+}

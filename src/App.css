@@ -412,10 +412,29 @@
 }
 
 @media (max-width: 700px) {
+  .shell {
+    padding: 6px 6px 8px;
+  }
+
+  .top-bar {
+    margin-bottom: 4px;
+    gap: 4px 8px;
+  }
+
+  .tagline {
+    display: none;
+  }
+
+  .score-pill {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+  }
+
   .split {
     flex-direction: column;
     flex: 1 1 0;
     min-height: 0;
+    gap: 4px;
   }
 
   .pane {
@@ -423,9 +442,40 @@
     min-height: 0;
   }
 
+  .pane-game {
+    order: -1;
+  }
+
   .pane-inner {
     flex: 1 1 0;
     min-height: 0;
     max-height: none;
+    border-radius: 8px;
+  }
+
+  .pane-label {
+    margin-bottom: 2px;
+  }
+
+  .foot {
+    margin-top: 4px;
+    padding-top: 2px;
+  }
+
+  .tip {
+    font-size: 0.75rem;
+    min-width: 0;
+  }
+
+  .game-over-title {
+    font-size: 1.2rem;
+  }
+
+  .game-over-score {
+    font-size: 0.95rem;
+  }
+
+  .ninja-arena {
+    border-radius: 8px;
   }
 }
