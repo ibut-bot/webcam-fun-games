@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
 import FlappyGameCanvas from './components/FlappyGameCanvas.jsx'
 import FruitNinjaGameCanvas from './components/FruitNinjaGameCanvas.jsx'
+import DanceGameCanvas from './components/DanceGameCanvas.jsx'
 import HomePage from './components/HomePage.jsx'
 import PoseWebcamPanel from './components/PoseWebcamPanel.jsx'
-import { stopBgMusic, stopFruitNinjaBg } from './gameAudio.js'
+import { SONGS } from './dancePoses.js'
+import { stopBgMusic, stopFruitNinjaBg, stopDanceMusic } from './gameAudio.js'
 import './App.css'
 
 const GAME_META = {
@@ -31,6 +33,18 @@ const GAME_META = {
     standHint: 'Stand back so your hands are visible.',
     countdownHint: 'Get ready to slash!',
   },
+  dance: {
+    title: 'Dance Party',
+    tagline:
+      'Match the dance poses to the beat! The closer you match, the more you score.',
+    tip: 'Match the cyan target pose with your body. Green limbs = matching, red = off. Hold poses to rack up points!',
+    overTitle: 'Song Complete!',
+    overHint: 'Clap or click to play again',
+    poseHint: 'Match the target pose · Clap to restart after song ends',
+    bgClass: 'game-inner game-inner--dance',
+    standHint: 'Stand back so your entire body is visible.',
+    countdownHint: 'Get ready to dance!',
+  },
 }
 
 export default function App() {
@@ -38,7 +52,9 @@ export default function App() {
 
   const flapQueueRef = useRef(0)
   const handPositionsRef = useRef(null)
+  const poseKeyPointsRef = useRef(null)
   const [playing, setPlaying] = useState(false)
+  const [selectedSong, setSelectedSong] = useState(0)
   const [poseReady, setPoseReady] = useState(false)
   const [score, setScore] = useState(0)
   const [error, setError] = useState(null)
@@ -55,6 +71,7 @@ export default function App() {
   const onPoseError = useCallback((msg) => {
     stopBgMusic()
     stopFruitNinjaBg()
+    stopDanceMusic()
     setError(msg)
     setPlaying(false)
     setPoseReady(false)
@@ -73,12 +90,14 @@ export default function App() {
     setGameOver(false)
     flapQueueRef.current = 0
     handPositionsRef.current = null
+    poseKeyPointsRef.current = null
     bumpSession()
   }
 
   const stop = () => {
     stopBgMusic()
     stopFruitNinjaBg()
+    stopDanceMusic()
     setPlaying(false)
     setPoseReady(false)
     setError(null)
@@ -88,6 +107,7 @@ export default function App() {
   const handleGameOver = useCallback((finalScore) => {
     stopBgMusic()
     stopFruitNinjaBg()
+    stopDanceMusic()
     setScore(finalScore)
     setGameOver(true)
   }, [])
@@ -96,6 +116,7 @@ export default function App() {
     setGameOver(false)
     flapQueueRef.current = 0
     handPositionsRef.current = null
+    poseKeyPointsRef.current = null
     bumpSession()
   }, [bumpSession])
 
@@ -114,6 +135,7 @@ export default function App() {
   }
 
   const isNinja = selectedGame === 'fruit-ninja'
+  const isDance = selectedGame === 'dance'
 
   return (
     <div className="shell">
@@ -130,7 +152,69 @@ export default function App() {
 
       {error && <div className="banner error">{error}</div>}
 
-      {isNinja ? (
+      {isDance ? (
+        <div className="ninja-arena-wrap">
+          <div className="pane-inner dance-arena">
+            <PoseWebcamPanel
+              enabled={playing}
+              poseKeyPointsRef={poseKeyPointsRef}
+              drawSkeleton={false}
+              onClap={playing ? handleClap : undefined}
+              onError={onPoseError}
+              onModelReady={onModelReady}
+              statusHint={meta.poseHint}
+            />
+            {playing && (
+              <DanceGameCanvas
+                active={playing}
+                poseReady={poseReady}
+                poseKeyPointsRef={poseKeyPointsRef}
+                sessionKey={sessionKey}
+                gameOver={gameOver}
+                selectedSong={selectedSong}
+                onScore={setScore}
+                onGameOver={handleGameOver}
+                onRequestRestart={requestRestart}
+              />
+            )}
+            {gameOver && (
+              <div
+                className="game-over-overlay"
+                onClick={requestRestart}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') requestRestart()
+                }}
+                role="button"
+                tabIndex={0}
+              >
+                <h2 className="game-over-title">{meta.overTitle}</h2>
+                <p className="game-over-score">Score: {score}</p>
+                <p className="game-over-hint">{meta.overHint}</p>
+              </div>
+            )}
+            {!playing && (
+              <div className="game-overlay">
+                <p className="overlay-lead">{meta.standHint}</p>
+                <div className="song-picker">
+                  {SONGS.map((s, i) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={`song-btn${selectedSong === i ? ' song-btn--active' : ''}`}
+                      onClick={() => setSelectedSong(i)}
+                    >
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+                <button type="button" className="primary" onClick={start}>
+                  Start Camera & Game
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : isNinja ? (
         <div className="ninja-arena-wrap">
           <div className="pane-inner ninja-arena">
             <PoseWebcamPanel

@@ -15,6 +15,13 @@ const GAMES = [
     icon: '🍉',
     ready: true,
   },
+  {
+    id: 'dance',
+    title: 'Dance Party',
+    description: 'Match dance poses to the beat! Full body moves with music.',
+    icon: '💃',
+    ready: true,
+  },
 ]
 
 export default function HomePage({ onSelectGame }) {

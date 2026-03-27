@@ -18,6 +18,8 @@ export default function PoseWebcamPanel({
   enabled,
   flapQueueRef,
   handPositionsRef,
+  poseKeyPointsRef,
+  drawSkeleton = true,
   onClap,
   onError,
   onModelReady,
@@ -225,27 +227,29 @@ export default function PoseWebcamPanel({
               const invW = 1 / video.videoWidth
               const invH = 1 / video.videoHeight
 
-              ctx.strokeStyle = '#00ff88'
-              ctx.lineWidth = 3
-              for (const [i, j] of connections) {
-                const a = kps[i]
-                const b = kps[j]
-                if (
-                  (a.score ?? 0) < MIN_CONFIDENCE ||
-                  (b.score ?? 0) < MIN_CONFIDENCE
-                )
-                  continue
-                ctx.beginPath()
-                ctx.moveTo(a.x * scaleX, a.y * scaleY)
-                ctx.lineTo(b.x * scaleX, b.y * scaleY)
-                ctx.stroke()
-              }
-              ctx.fillStyle = '#00ff88'
-              for (const k of kps) {
-                if ((k.score ?? 0) < MIN_CONFIDENCE) continue
-                ctx.beginPath()
-                ctx.arc(k.x * scaleX, k.y * scaleY, 4, 0, Math.PI * 2)
-                ctx.fill()
+              if (drawSkeleton) {
+                ctx.strokeStyle = '#00ff88'
+                ctx.lineWidth = 3
+                for (const [i, j] of connections) {
+                  const a = kps[i]
+                  const b = kps[j]
+                  if (
+                    (a.score ?? 0) < MIN_CONFIDENCE ||
+                    (b.score ?? 0) < MIN_CONFIDENCE
+                  )
+                    continue
+                  ctx.beginPath()
+                  ctx.moveTo(a.x * scaleX, a.y * scaleY)
+                  ctx.lineTo(b.x * scaleX, b.y * scaleY)
+                  ctx.stroke()
+                }
+                ctx.fillStyle = '#00ff88'
+                for (const k of kps) {
+                  if ((k.score ?? 0) < MIN_CONFIDENCE) continue
+                  ctx.beginPath()
+                  ctx.arc(k.x * scaleX, k.y * scaleY, 4, 0, Math.PI * 2)
+                  ctx.fill()
+                }
               }
 
               const byName = (name) => {
@@ -284,6 +288,14 @@ export default function PoseWebcamPanel({
                     : null,
                 }
               }
+
+              if (poseKeyPointsRef) {
+                poseKeyPointsRef.current = {
+                  keypoints: kps.map(k => ({ x: k.x, y: k.y, score: k.score ?? 0 })),
+                  videoWidth: video.videoWidth,
+                  videoHeight: video.videoHeight,
+                }
+              }
             })
             .catch(() => {
               inferring = false
@@ -308,7 +320,7 @@ export default function PoseWebcamPanel({
       detector?.dispose()
       stream?.getTracks().forEach((t) => t.stop())
     }
-  }, [enabled, flapQueueRef, handPositionsRef, onError, onModelReady, statusHint])
+  }, [enabled, flapQueueRef, handPositionsRef, poseKeyPointsRef, drawSkeleton, onError, onModelReady, statusHint])
 
   return (
     <div ref={panelRef} className="pose-panel">
