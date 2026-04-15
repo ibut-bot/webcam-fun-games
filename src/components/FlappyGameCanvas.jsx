@@ -70,15 +70,15 @@ export default function FlappyGameCanvas({
       }
       if (cancelled) return
 
-      setReadyMessage('Get in position!')
+      setReadyMessage('Align with the airlock…')
       await new Promise((r) => setTimeout(r, 2000))
       if (cancelled) return
 
-      setReadyMessage('Stand back so your arms are visible')
+      setReadyMessage('Keep arms in frame for thruster control')
       await new Promise((r) => setTimeout(r, 2000))
       if (cancelled) return
 
-      setReadyMessage('Raise arms up, then down to flap')
+      setReadyMessage('Arms up, then dip to fire thrusters')
       await new Promise((r) => setTimeout(r, 2000))
       if (cancelled) return
       setReadyMessage(null)
@@ -124,7 +124,7 @@ export default function FlappyGameCanvas({
       {countdown != null && (
         <div className="game-countdown-overlay" aria-live="polite">
           <span className="countdown-number">{countdown}</span>
-          <span className="countdown-hint">Get ready to flap!</span>
+          <span className="countdown-hint">Launch sequence…</span>
         </div>
       )}
     </div>

@@ -27,16 +27,23 @@ export function createFruitNinjaGame(canvas, hooks) {
   const SPEED_HISTORY_LEN = 5
   const SLASH_AVG_THRESHOLD = 18
 
-  const FRUIT_TYPES = [
-    { name: 'watermelon', color: '#2ecc71', inner: '#e74c3c', dark: '#1a7a42', rFactor: 0.08, pts: 1 },
-    { name: 'apple', color: '#e74c3c', inner: '#f1c40f', dark: '#a93226', rFactor: 0.065, pts: 1 },
-    { name: 'orange', color: '#f39c12', inner: '#f1c40f', dark: '#d68910', rFactor: 0.065, pts: 1 },
-    { name: 'banana', color: '#f1c40f', inner: '#fef9e7', dark: '#d4ac0d', rFactor: 0.055, pts: 1 },
-    { name: 'strawberry', color: '#e74c3c', inner: '#fadbd8', dark: '#922b21', rFactor: 0.055, pts: 2 },
-    { name: 'pineapple', color: '#f39c12', inner: '#f9e79f', dark: '#b7950b', rFactor: 0.07, pts: 2 },
+  const TARGET_TYPES = [
+    { name: 'asteroid', kind: 'asteroid', color: '#78716c', inner: '#d6d3d1', dark: '#3f3f46', rFactor: 0.078, pts: 1 },
+    { name: 'asteroid_b', kind: 'asteroid', color: '#57534e', inner: '#a8a29e', dark: '#292524', rFactor: 0.082, pts: 1 },
+    { name: 'ufo', kind: 'ufo', color: '#94a3b8', inner: '#f1f5f9', dark: '#334155', rFactor: 0.068, pts: 1 },
+    { name: 'planet', kind: 'planet', color: '#3b82f6', inner: '#bfdbfe', dark: '#1e3a8a', rFactor: 0.08, pts: 1 },
+    { name: 'planet_b', kind: 'planet', color: '#7c3aed', inner: '#ddd6fe', dark: '#4c1d95', rFactor: 0.076, pts: 2 },
+    { name: 'sun', kind: 'sun', color: '#f59e0b', inner: '#fef3c7', dark: '#b45309', rFactor: 0.072, pts: 2 },
   ]
 
-  const BOMB = { name: 'bomb', color: '#2c3e50', inner: '#e74c3c', dark: '#1a252f', rFactor: 0.07 }
+  const BOMB = {
+    name: 'blackhole',
+    kind: 'blackhole',
+    color: '#020617',
+    inner: '#a855f7',
+    dark: '#000000',
+    rFactor: 0.072,
+  }
 
   function rad(type) {
     return Math.max(24, Math.round(type.rFactor * Math.min(width, height)))
@@ -52,7 +59,7 @@ export function createFruitNinjaGame(canvas, hooks) {
 
   function spawnFruit() {
     const isBomb = score > 2 && Math.random() < Math.min(0.15, 0.06 + score * 0.004)
-    const type = isBomb ? BOMB : FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)]
+    const type = isBomb ? BOMB : TARGET_TYPES[Math.floor(Math.random() * TARGET_TYPES.length)]
     const r = rad(type)
     const x = width * 0.15 + Math.random() * width * 0.7
     const y = height + r
@@ -94,7 +101,7 @@ export function createFruitNinjaGame(canvas, hooks) {
       particles.push({
         x: f.x, y: f.y,
         vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-        color: ['#e74c3c', '#f39c12', '#2c3e50', '#fff'][i % 4],
+        color: ['#f97316', '#a855f7', '#fef08a', '#e2e8f0'][i % 4],
         r: 3 + Math.random() * 7, life: 1, decay: 0.016 + Math.random() * 0.016,
       })
     }
@@ -294,116 +301,242 @@ export function createFruitNinjaGame(canvas, hooks) {
     return `rgb(${r},${g},${b})`
   }
 
-  function drawFruitBody(type, r) {
+  function drawShadowDrop(r) {
+    ctx.fillStyle = 'rgba(0,0,0,0.22)'
+    ctx.beginPath()
+    ctx.ellipse(4, 6, r * 0.95, r * 0.88, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  function drawAsteroidRock(type, r) {
+    const n = 10
+    ctx.beginPath()
+    for (let i = 0; i <= n; i++) {
+      const a = (i / n) * Math.PI * 2 - Math.PI / 2
+      const jitter = r * (0.88 + Math.sin(i * 2.17 + 0.3) * 0.14 + (i % 3) * 0.03)
+      const x = Math.cos(a) * jitter
+      const y = Math.sin(a) * jitter * 0.92
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.closePath()
+    const grd = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.05, 0, 0, r)
+    grd.addColorStop(0, lighten(type.color, 40))
+    grd.addColorStop(0.55, type.color)
+    grd.addColorStop(1, type.dark)
+    ctx.fillStyle = grd
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
     ctx.fillStyle = 'rgba(0,0,0,0.18)'
     ctx.beginPath()
-    ctx.ellipse(4, 5, r, r * 0.95, 0, 0, Math.PI * 2)
+    ctx.arc(r * 0.25, r * 0.15, r * 0.14, 0, Math.PI * 2)
     ctx.fill()
+    ctx.beginPath()
+    ctx.arc(-r * 0.2, -r * 0.28, r * 0.08, 0, Math.PI * 2)
+    ctx.fill()
+  }
 
-    const grd = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r)
-    grd.addColorStop(0, lighten(type.color, 50))
-    grd.addColorStop(0.6, type.color)
+  function drawUFOTarget(type, r) {
+    const domeH = r * 0.42
+    const diskRy = r * 0.28
+    const diskRx = r * 0.9
+    const domeGrd = ctx.createRadialGradient(0, -domeH * 0.2, 0, 0, -domeH * 0.15, r * 0.5)
+    domeGrd.addColorStop(0, type.inner)
+    domeGrd.addColorStop(0.6, type.color)
+    domeGrd.addColorStop(1, type.dark)
+    ctx.fillStyle = domeGrd
+    ctx.beginPath()
+    ctx.arc(0, -domeH * 0.15, r * 0.38, Math.PI, 0)
+    ctx.lineTo(r * 0.38, domeH * 0.2)
+    ctx.quadraticCurveTo(0, domeH * 0.55, -r * 0.38, domeH * 0.2)
+    ctx.closePath()
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(15,23,42,0.5)'
+    ctx.lineWidth = 1.2
+    ctx.stroke()
+    const diskGrd = ctx.createLinearGradient(-diskRx, 0, diskRx, 0)
+    diskGrd.addColorStop(0, type.dark)
+    diskGrd.addColorStop(0.2, type.color)
+    diskGrd.addColorStop(0.5, lighten(type.color, 35))
+    diskGrd.addColorStop(0.8, type.color)
+    diskGrd.addColorStop(1, type.dark)
+    ctx.fillStyle = diskGrd
+    ctx.beginPath()
+    ctx.ellipse(0, domeH * 0.32, diskRx, diskRy, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(15,23,42,0.45)'
+    ctx.lineWidth = 1.2
+    ctx.stroke()
+    const blink = 0.5 + 0.5 * Math.sin(frameCount * 0.2)
+    ctx.fillStyle = `rgba(56, 189, 248, ${0.5 + blink * 0.45})`
+    for (let li = -1; li <= 1; li++) {
+      ctx.beginPath()
+      ctx.arc(li * diskRx * 0.55, domeH * 0.32 + li * 2, r * 0.06, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    ctx.fillStyle = `rgba(253, 224, 71, ${0.35 + blink * 0.3})`
+    ctx.beginPath()
+    ctx.arc(0, domeH * 0.28, r * 0.055, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  function drawPlanetTarget(type, r) {
+    const grd = ctx.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.08, 0, 0, r)
+    grd.addColorStop(0, type.inner)
+    grd.addColorStop(0.35, lighten(type.color, 25))
+    grd.addColorStop(0.65, type.color)
     grd.addColorStop(1, type.dark)
     ctx.fillStyle = grd
     ctx.beginPath()
-    ctx.arc(0, 0, r, 0, Math.PI * 2)
+    ctx.arc(0, 0, r * 0.92, 0, Math.PI * 2)
     ctx.fill()
-
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)'
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.arc(0, 0, r, 0, Math.PI * 2)
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'
+    ctx.lineWidth = 1.5
     ctx.stroke()
-
-    ctx.fillStyle = 'rgba(255,255,255,0.32)'
-    ctx.beginPath()
-    ctx.ellipse(-r * 0.25, -r * 0.3, r * 0.4, r * 0.24, -0.3, 0, Math.PI * 2)
-    ctx.fill()
-
-    if (type.name === 'watermelon') {
-      ctx.strokeStyle = 'rgba(0,70,0,0.25)'
-      ctx.lineWidth = 2.5
-      for (let i = -2; i <= 2; i++) {
-        ctx.beginPath()
-        ctx.moveTo(i * r * 0.3, -r)
-        ctx.quadraticCurveTo(i * r * 0.35, 0, i * r * 0.3, r)
-        ctx.stroke()
-      }
-    }
-
-    if (type.name === 'apple' || type.name === 'strawberry' || type.name === 'pineapple') {
-      ctx.fillStyle = '#27ae60'
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)'
+    ctx.lineWidth = r * 0.045
+    for (let b = -1; b <= 1; b++) {
       ctx.beginPath()
-      ctx.ellipse(0, -r * 0.85, r * 0.25, r * 0.12, 0.3, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.strokeStyle = '#1e8449'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.moveTo(0, -r * 0.6)
-      ctx.lineTo(2, -r * 1.1)
+      ctx.ellipse(0, b * r * 0.35, r * 0.88, r * 0.18, 0, 0, Math.PI * 2)
       ctx.stroke()
     }
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(r * 0.55, -r * 0.45, r * 0.12, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'
+    ctx.beginPath()
+    ctx.ellipse(0, 0, r * 1.25, r * 0.42, -0.25, 0, Math.PI * 2)
+    ctx.stroke()
+  }
 
-    if (type.name === 'strawberry') {
-      ctx.fillStyle = '#f9e79f'
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 + 0.3
-        ctx.beginPath()
-        ctx.arc(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, 2, 0, Math.PI * 2)
-        ctx.fill()
-      }
+  function drawSunTarget(type, r) {
+    const corona = ctx.createRadialGradient(0, 0, r * 0.15, 0, 0, r * 1.35)
+    corona.addColorStop(0, '#fffbeb')
+    corona.addColorStop(0.25, type.inner)
+    corona.addColorStop(0.55, type.color)
+    corona.addColorStop(0.85, 'rgba(251, 146, 60, 0.35)')
+    corona.addColorStop(1, 'rgba(251, 146, 60, 0)')
+    ctx.fillStyle = corona
+    ctx.beginPath()
+    ctx.arc(0, 0, r * 1.28, 0, Math.PI * 2)
+    ctx.fill()
+    const core = ctx.createRadialGradient(-r * 0.2, -r * 0.25, 0, 0, 0, r * 0.75)
+    core.addColorStop(0, '#fffde7')
+    core.addColorStop(0.45, type.inner)
+    core.addColorStop(1, type.dark)
+    ctx.fillStyle = core
+    ctx.beginPath()
+    ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(250, 250, 250, 0.35)'
+    ctx.lineWidth = 1.2
+    ctx.stroke()
+    const flare = (frameCount * 0.08) % (Math.PI * 2)
+    for (let k = 0; k < 8; k++) {
+      const a = flare + (k / 8) * Math.PI * 2
+      const len = r * (1.05 + (k % 2) * 0.12)
+      ctx.strokeStyle = `rgba(254, 243, 199, ${0.15 + (k % 3) * 0.08})`
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55)
+      ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len)
+      ctx.stroke()
     }
   }
 
-  function drawBomb(r) {
-    ctx.fillStyle = 'rgba(0,0,0,0.2)'
-    ctx.beginPath()
-    ctx.ellipse(4, 5, r, r * 0.95, 0, 0, Math.PI * 2)
-    ctx.fill()
+  function drawSliceTarget(type, r) {
+    drawShadowDrop(r)
+    switch (type.kind) {
+      case 'asteroid':
+        drawAsteroidRock(type, r)
+        break
+      case 'ufo':
+        drawUFOTarget(type, r)
+        break
+      case 'planet':
+        drawPlanetTarget(type, r)
+        break
+      case 'sun':
+        drawSunTarget(type, r)
+        break
+      default:
+        drawAsteroidRock(type, r)
+    }
+  }
 
-    ctx.fillStyle = '#2c3e50'
+  function drawBlackHole(r) {
+    drawShadowDrop(r)
+    const spin = frameCount * 0.03
+    ctx.save()
+    ctx.rotate(spin * 0.4)
+    const disk = ctx.createRadialGradient(0, 0, r * 0.25, 0, 0, r * 1.15)
+    disk.addColorStop(0, 'rgba(0,0,0,0)')
+    disk.addColorStop(0.35, 'rgba(249, 115, 22, 0.45)')
+    disk.addColorStop(0.52, 'rgba(192, 38, 211, 0.38)')
+    disk.addColorStop(0.68, 'rgba(59, 130, 246, 0.22)')
+    disk.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = disk
     ctx.beginPath()
-    ctx.arc(0, 0, r, 0, Math.PI * 2)
+    ctx.ellipse(0, 0, r * 1.12, r * 0.48, 0, 0, Math.PI * 2)
     ctx.fill()
-
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)'
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)'
     ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.arc(0, 0, r, 0, Math.PI * 2)
+    ctx.ellipse(0, 0, r * 1.08, r * 0.44, 0, 0, Math.PI * 2)
     ctx.stroke()
+    ctx.restore()
 
-    ctx.fillStyle = 'rgba(255,255,255,0.1)'
+    const lens = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 0.62)
+    lens.addColorStop(0, 'rgba(15, 23, 42, 0.95)')
+    lens.addColorStop(0.72, '#000000')
+    lens.addColorStop(0.88, 'rgba(168, 85, 247, 0.35)')
+    lens.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = lens
     ctx.beginPath()
-    ctx.ellipse(-r * 0.25, -r * 0.3, r * 0.35, r * 0.2, -0.3, 0, Math.PI * 2)
+    ctx.arc(0, 0, r * 0.58, 0, Math.PI * 2)
     ctx.fill()
 
-    ctx.strokeStyle = '#7f8c8d'
-    ctx.lineWidth = 3
+    ctx.fillStyle = '#000000'
     ctx.beginPath()
-    ctx.moveTo(0, -r * 0.8)
-    ctx.quadraticCurveTo(r * 0.4, -r * 1.3, r * 0.2, -r * 1.5)
-    ctx.stroke()
-
-    const sp = (frameCount * 0.18) % 1
-    ctx.fillStyle = `rgba(255,${Math.floor(150 + sp * 105)},0,${0.5 + sp * 0.5})`
-    ctx.beginPath()
-    ctx.arc(r * 0.2, -r * 1.5, 4 + sp * 3, 0, Math.PI * 2)
+    ctx.arc(0, 0, r * 0.38, 0, Math.PI * 2)
     ctx.fill()
 
-    ctx.strokeStyle = '#e74c3c'
-    ctx.lineWidth = 3
-    const s = r * 0.35
+    ctx.strokeStyle = `rgba(255,255,255,${0.12 + 0.08 * Math.sin(frameCount * 0.12)})`
+    ctx.lineWidth = 1.5
     ctx.beginPath()
-    ctx.moveTo(-s, -s); ctx.lineTo(s, s)
-    ctx.moveTo(s, -s); ctx.lineTo(-s, s)
+    ctx.arc(0, 0, r * 0.52, 0, Math.PI * 2)
     ctx.stroke()
+  }
+
+  function drawCosmicBackdrop() {
+    const g = ctx.createLinearGradient(0, 0, 0, height)
+    g.addColorStop(0, 'rgba(12, 10, 36, 0.72)')
+    g.addColorStop(0.45, 'rgba(18, 12, 52, 0.68)')
+    g.addColorStop(1, 'rgba(8, 6, 28, 0.72)')
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, width, height)
+    const n = 48
+    const phi = 0.6180339887
+    for (let i = 0; i < n; i++) {
+      const sx = ((i * phi + frameCount * 0.003 * (1 + i * 0.02)) % 1) * width
+      const sy = ((i * 0.4142 + frameCount * 0.0018) % 1) * height
+      const a = 0.1 + 0.22 * Math.sin(frameCount * 0.04 + i * 0.7)
+      ctx.fillStyle = `rgba(186, 230, 253, ${a})`
+      ctx.beginPath()
+      ctx.arc(sx, sy, i % 4 === 0 ? 1.5 : 0.85, 0, Math.PI * 2)
+      ctx.fill()
+    }
   }
 
   function drawWholeFruit(f) {
     ctx.save()
     ctx.translate(f.x, f.y)
     ctx.rotate(f.rotation)
-    f.isBomb ? drawBomb(f.radius) : drawFruitBody(f.type, f.radius)
+    f.isBomb ? drawBlackHole(f.radius) : drawSliceTarget(f.type, f.radius)
     ctx.restore()
   }
 
@@ -474,6 +607,7 @@ export function createFruitNinjaGame(canvas, hooks) {
 
   function draw() {
     ctx.clearRect(0, 0, width, height)
+    drawCosmicBackdrop()
 
     if (screenFlash > 0) {
       ctx.fillStyle = `rgba(255,40,20,${screenFlash / 28})`
@@ -542,7 +676,7 @@ export function createFruitNinjaGame(canvas, hooks) {
     ctx.strokeText('Score: ' + score, 14, 14)
     ctx.fillText('Score: ' + score, 14, 14)
 
-    for (let i = 0; i < 3; i++) drawHeart(width - 38 - i * 32, 18, 11, i < lives ? '#e74c3c' : 'rgba(80,80,80,0.6)')
+    for (let i = 0; i < 3; i++) drawHeart(width - 38 - i * 32, 18, 11, i < lives ? '#22d3ee' : 'rgba(80,90,120,0.5)')
 
     if (missCount > 0) {
       ctx.font = '16px system-ui'

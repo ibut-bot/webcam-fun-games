@@ -56,16 +56,16 @@ export default function DanceGameCanvas({
       }
       if (cancelled) return
 
-      setReadyMessage('Get in position!')
+      setReadyMessage('Calibration — find your mark…')
       await new Promise(r => setTimeout(r, 2000))
       if (cancelled) return
 
-      setReadyMessage('Stand back so your entire body is visible')
+      setReadyMessage('Full body visible for hologram lock')
       await new Promise(r => setTimeout(r, 2500))
       if (cancelled) return
 
       const song = SONGS[selectedSong] || SONGS[0]
-      setReadyMessage(`♫ ${song.name} — match the dance poses!`)
+      setReadyMessage(`♫ ${song.name} — mirror the holo cues`)
       await new Promise(r => setTimeout(r, 2500))
       if (cancelled) return
       setReadyMessage(null)
@@ -111,7 +111,7 @@ export default function DanceGameCanvas({
       {countdown != null && (
         <div className="game-countdown-overlay" aria-live="polite">
           <span className="countdown-number">{countdown}</span>
-          <span className="countdown-hint">Get ready to dance!</span>
+          <span className="countdown-hint">Holo-sync in…</span>
         </div>
       )}
     </div>

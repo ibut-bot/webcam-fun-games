@@ -160,6 +160,80 @@ export const POSES = {
       15: { x: -0.3, y: 2.0 }, 16: { x: 0.7, y: 1.8 },
     },
   },
+
+  /* ── Space Adventure poses ────────────────────────── */
+
+  rocketPose: {
+    name: 'Rocket Pose',
+    joints: {
+      ...SH, 7: { x: 0.08, y: -1.88 }, 8: { x: -0.08, y: -1.88 }, 9: { x: 0.06, y: -2.52 }, 10: { x: -0.06, y: -2.52 },
+      ...LEGS,
+    },
+  },
+  meteorMissile: {
+    name: 'Meteor Missile',
+    joints: {
+      ...SH, 7: { x: 0.45, y: -0.55 }, 8: { x: -0.55, y: -1.25 }, 9: { x: 0.85, y: -0.15 }, 10: { x: -1.65, y: -1.55 },
+      ...LEGS,
+    },
+  },
+  meteorStrike: {
+    name: 'Meteor Strike',
+    joints: {
+      ...SH, 7: { x: 0.55, y: -1.25 }, 8: { x: -0.45, y: -0.55 }, 9: { x: 1.65, y: -1.55 }, 10: { x: -0.85, y: -0.15 },
+      ...LEGS,
+    },
+  },
+  satelliteArms: {
+    name: 'Satellite Array',
+    joints: { ...SH, 7: { x: 1.2, y: -1 }, 8: { x: -1.2, y: -1 }, 9: { x: 1.8, y: -1 }, 10: { x: -1.8, y: -1 }, ...LEGS },
+  },
+  orbitStride: {
+    name: 'Orbit Stride',
+    joints: {
+      ...SH, 7: { x: 1.05, y: -1.3 }, 8: { x: -1.05, y: -1.3 }, 9: { x: 1.35, y: -1.65 }, 10: { x: -1.35, y: -1.65 },
+      ...WIDE_LEGS,
+    },
+  },
+  tractorBeamUp: {
+    name: 'Tractor Beam',
+    joints: {
+      ...SH, 7: { x: 0.4, y: -1.65 }, 8: { x: -1.05, y: -1.05 }, 9: { x: 0.45, y: -2.28 }, 10: { x: -1.35, y: -1.15 },
+      ...LEGS,
+    },
+  },
+  cometTail: {
+    name: 'Comet Tail',
+    joints: {
+      ...SH, 7: { x: -1.05, y: -1.45 }, 8: { x: 0.85, y: -1.28 }, 9: { x: -1.55, y: -2.05 }, 10: { x: 1.25, y: -1.75 },
+      ...LEGS,
+    },
+  },
+  lunarDock: {
+    name: 'Lunar Dock',
+    joints: {
+      ...SH, 7: { x: 0.65, y: -1.05 }, 8: { x: -0.65, y: -1.05 }, 9: { x: 0.25, y: -1.55 }, 10: { x: -0.25, y: -1.55 },
+      11: { x: 0.48, y: 0 }, 12: { x: -0.48, y: 0 },
+      13: { x: 0.88, y: 0.92 }, 14: { x: -0.88, y: 0.92 },
+      15: { x: 1.02, y: 1.92 }, 16: { x: -1.02, y: 1.92 },
+    },
+  },
+  hyperdriveBoost: {
+    name: 'Hyperdrive Boost',
+    joints: { ...SH, 7: { x: 0.85, y: -1.55 }, 8: { x: -0.85, y: -1.55 }, 9: { x: 1.2, y: -2.1 }, 10: { x: -1.2, y: -2.1 }, ...LEGS },
+  },
+  asteroidBelt: {
+    name: 'Asteroid Belt',
+    joints: { ...SH, 7: { x: 1.0, y: -0.7 }, 8: { x: -1.0, y: -0.7 }, 9: { x: 0.5, y: -1.0 }, 10: { x: -0.5, y: -1.0 }, ...LEGS },
+  },
+  supernova: {
+    name: 'Supernova',
+    joints: { ...SH, 7: { x: 0.85, y: -1.55 }, 8: { x: -0.85, y: -1.55 }, 9: { x: 1.2, y: -2.1 }, 10: { x: -1.2, y: -2.1 }, ...WIDE_LEGS },
+  },
+  wormholeGate: {
+    name: 'Wormhole Gate',
+    joints: { ...SH, 7: { x: 0.1, y: -0.82 }, 8: { x: -0.1, y: -0.82 }, 9: { x: -0.32, y: -1.12 }, 10: { x: 0.32, y: -1.12 }, ...LEGS },
+  },
 }
 
 export const SONGS = [
@@ -226,6 +300,46 @@ export const SONGS = [
       { beat: 84, pose: 'lungeLeft' },
       { beat: 90, pose: 'victory' },
       { beat: 96, pose: 'tPose' },
+    ],
+  },
+  {
+    id: 'space',
+    name: 'Space Adventure',
+    bpm: 118,
+    duration: 62,
+    choreography: [
+      { beat: 0, pose: 'rocketPose' },
+      { beat: 4, pose: 'satelliteArms' },
+      { beat: 8, pose: 'meteorMissile' },
+      { beat: 12, pose: 'meteorStrike' },
+      { beat: 16, pose: 'orbitStride' },
+      { beat: 20, pose: 'tractorBeamUp' },
+      { beat: 24, pose: 'cometTail' },
+      { beat: 28, pose: 'lunarDock' },
+      { beat: 32, pose: 'wormholeGate' },
+      { beat: 36, pose: 'hyperdriveBoost' },
+      { beat: 40, pose: 'asteroidBelt' },
+      { beat: 44, pose: 'supernova' },
+      { beat: 48, pose: 'rocketPose' },
+      { beat: 52, pose: 'meteorMissile' },
+      { beat: 56, pose: 'meteorStrike' },
+      { beat: 60, pose: 'satelliteArms' },
+      { beat: 64, pose: 'tractorBeamUp' },
+      { beat: 68, pose: 'orbitStride' },
+      { beat: 72, pose: 'lunarDock' },
+      { beat: 76, pose: 'cometTail' },
+      { beat: 80, pose: 'hyperdriveBoost' },
+      { beat: 84, pose: 'asteroidBelt' },
+      { beat: 88, pose: 'supernova' },
+      { beat: 92, pose: 'wormholeGate' },
+      { beat: 96, pose: 'rocketPose' },
+      { beat: 100, pose: 'meteorMissile' },
+      { beat: 104, pose: 'meteorStrike' },
+      { beat: 108, pose: 'tractorBeamUp' },
+      { beat: 112, pose: 'satelliteArms' },
+      { beat: 116, pose: 'orbitStride' },
+      { beat: 120, pose: 'hyperdriveBoost' },
+      { beat: 124, pose: 'rocketPose' },
     ],
   },
 ]

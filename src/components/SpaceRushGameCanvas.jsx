@@ -1,11 +1,11 @@
 import { useEffect, useRef, useLayoutEffect, useState } from 'react'
-import { createFruitNinjaGame } from '../fruitNinjaGame.js'
-import { startFruitNinjaBg, stopFruitNinjaBg, playSliceSound, playBombSound } from '../gameAudio.js'
+import { createSpaceRushGame } from '../spaceRushGame.js'
+import { startSpaceRushBg, stopSpaceRushBg } from '../gameAudio.js'
 
-export default function FruitNinjaGameCanvas({
+export default function SpaceRushGameCanvas({
   active,
   poseReady = false,
-  handPositionsRef,
+  poseKeyPointsRef,
   sessionKey = 0,
   gameOver = false,
   onScore,
@@ -24,7 +24,11 @@ export default function FruitNinjaGameCanvas({
   useLayoutEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
 
   useEffect(() => {
-    if (!active) { setCountdown(null); return }
+    if (!active) {
+      queueMicrotask(() => setCountdown(null))
+      return
+    }
+
     const canvas = canvasRef.current
     if (!canvas) return
     const parent = canvas.parentElement
@@ -32,17 +36,17 @@ export default function FruitNinjaGameCanvas({
 
     let cancelled = false
 
-    const game = createFruitNinjaGame(canvas, {
-      getHandPositions() {
-        return handPositionsRef?.current ?? null
+    const game = createSpaceRushGame(canvas, {
+      getPoseKeypoints() {
+        return poseKeyPointsRef?.current ?? null
       },
-      onScore(s) { onScoreRef.current?.(s) },
+      onScore(s) {
+        onScoreRef.current?.(s)
+      },
       onGameOver(s) {
-        stopFruitNinjaBg()
+        stopSpaceRushBg()
         onGameOverRef.current?.(s)
       },
-      onSlice() { void playSliceSound() },
-      onBombHit() { void playBombSound() },
     })
 
     const ro = new ResizeObserver(() => game.resize())
@@ -51,33 +55,34 @@ export default function FruitNinjaGameCanvas({
 
     async function runSession() {
       while (!poseReadyRef.current && !cancelled) {
-        await new Promise(r => setTimeout(r, 50))
+        await new Promise((r) => setTimeout(r, 50))
       }
       if (cancelled) return
 
-      setReadyMessage('Stationkeeping — hold steady…')
-      await new Promise(r => setTimeout(r, 2000))
+      setReadyMessage('ISS deck calibration — stand neutrally…')
+      await new Promise((r) => setTimeout(r, 2000))
       if (cancelled) return
 
-      setReadyMessage('Hands in frame for beam saber tracking')
-      await new Promise(r => setTimeout(r, 2000))
+      setReadyMessage('Lean to change lane · hands high to jump · bend knees to roll')
+      await new Promise((r) => setTimeout(r, 2800))
       if (cancelled) return
 
-      setReadyMessage('Slice space rocks & ships — never touch a black hole!')
-      await new Promise(r => setTimeout(r, 2000))
+      setReadyMessage('Low meteors: jump or sidestep · High meteors: roll or sidestep')
+      await new Promise((r) => setTimeout(r, 2600))
       if (cancelled) return
       setReadyMessage(null)
 
       for (let i = 3; i > 0; i--) {
         if (cancelled) return
         setCountdown(i)
-        await new Promise(r => setTimeout(r, 1000))
+        await new Promise((r) => setTimeout(r, 1000))
       }
       if (cancelled) return
       setCountdown(null)
+
       game.resize()
+      void startSpaceRushBg()
       game.start()
-      void startFruitNinjaBg()
     }
 
     runSession()
@@ -85,18 +90,18 @@ export default function FruitNinjaGameCanvas({
     return () => {
       cancelled = true
       game.stop()
-      stopFruitNinjaBg()
+      stopSpaceRushBg()
       ro.disconnect()
       setCountdown(null)
       setReadyMessage(null)
     }
-  }, [active, sessionKey, handPositionsRef])
+  }, [active, sessionKey, poseKeyPointsRef])
 
   return (
-    <div className="fruit-ninja-game-wrap">
+    <div className="space-rush-game-wrap">
       <canvas
         ref={canvasRef}
-        className="fruit-ninja-canvas"
+        className="space-rush-canvas"
         onClick={() => gameOver && onRequestRestart?.()}
         role="presentation"
       />
@@ -108,7 +113,7 @@ export default function FruitNinjaGameCanvas({
       {countdown != null && (
         <div className="game-countdown-overlay" aria-live="polite">
           <span className="countdown-number">{countdown}</span>
-          <span className="countdown-hint">Debris clearing run…</span>
+          <span className="countdown-hint">Airlock cycling…</span>
         </div>
       )}
     </div>

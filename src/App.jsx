@@ -2,48 +2,61 @@ import { useCallback, useRef, useState } from 'react'
 import FlappyGameCanvas from './components/FlappyGameCanvas.jsx'
 import FruitNinjaGameCanvas from './components/FruitNinjaGameCanvas.jsx'
 import DanceGameCanvas from './components/DanceGameCanvas.jsx'
+import SpaceRushGameCanvas from './components/SpaceRushGameCanvas.jsx'
 import HomePage from './components/HomePage.jsx'
 import PoseWebcamPanel from './components/PoseWebcamPanel.jsx'
 import { SONGS } from './dancePoses.js'
-import { stopBgMusic, stopFruitNinjaBg, stopDanceMusic } from './gameAudio.js'
+import { stopBgMusic, stopFruitNinjaBg, stopDanceMusic, stopSpaceRushBg } from './gameAudio.js'
 import './App.css'
 
 const GAME_META = {
   flappy: {
-    title: 'Flappy Pose',
+    title: 'Asteroid Field',
     tagline:
-      'Classic-style flappy: raise arms, then lower to flap. After game over, clap or click to try again.',
-    tip: 'Raise arms up, then lower to flap (elbows count if wrists are hidden). Five lives; soft background music while you play.',
-    overTitle: 'Mission Over',
-    overHint: 'Clap or click to try again',
-    poseHint: 'Raise arms up, then down to flap · Clap hands to restart after game over',
-    bgClass: 'game-inner',
-    standHint: 'Stand back so your shoulders and arms are visible.',
-    countdownHint: 'Get ready to flap!',
+      'Rocket through the void: arms up, then down to thrust. Dodge the UFO tractor beams — clap or tap to redeploy after a crash.',
+    tip: 'Raise arms, then lower to thrust (elbows work if wrists are hidden). You have five shields and a chill cosmic track.',
+    overTitle: 'Signal lost',
+    overHint: 'Clap or click to relaunch',
+    poseHint: 'Arms up, then down to thrust · Clap to restart after game over',
+    bgClass: 'game-inner game-inner--space',
+    standHint: 'Step back so shoulders and arms stay on camera.',
+    countdownHint: 'Engines spooling…',
   },
   'fruit-ninja': {
-    title: 'Fruit Ninja',
+    title: 'Nebula Slash',
     tagline:
-      'Slash fruits mid-air with your hands! Avoid the bombs. Combo slashes for bonus points.',
-    tip: 'Move your hands fast to slash through fruits. Missing 3 fruits costs a life. Slicing a bomb costs a life too!',
-    overTitle: 'Game Over',
-    overHint: 'Clap or click to try again',
-    poseHint: 'Move your hands quickly to slice · Clap to restart after game over',
+      'Slice asteroids, UFOs, planets, and suns — dodge the black holes.',
+    tip: 'Slash with quick hand moves. Three missed targets or slicing a black hole costs a shield.',
+    overTitle: 'Hull breach',
+    overHint: 'Clap or click to retry',
+    poseHint: 'Swipe fast to slice · Clap to restart after game over',
     bgClass: 'game-inner game-inner--ninja',
-    standHint: 'Stand back so your hands are visible.',
-    countdownHint: 'Get ready to slash!',
+    standHint: 'Keep both hands in frame.',
+    countdownHint: 'Orbital debris inbound…',
   },
   dance: {
-    title: 'Dance Party',
+    title: 'Cosmic Chorus',
     tagline:
-      'Match the dance poses to the beat! The closer you match, the more you score.',
-    tip: 'Match the cyan target pose with your body. Green limbs = matching, red = off. Hold poses to rack up points!',
-    overTitle: 'Song Complete!',
-    overHint: 'Clap or click to play again',
-    poseHint: 'Match the target pose · Clap to restart after song ends',
+      'Mirror the hologram pose — tighter match, bigger score. Ride the beat.',
+    tip: 'Pick a track (Disco / Chill / Space Adventure). Cyan wireframe = target; align limbs and build streaks.',
+    overTitle: 'Transmission ends',
+    overHint: 'Clap or click for an encore',
+    poseHint: 'Match the hologram · Clap when the song wraps',
     bgClass: 'game-inner game-inner--dance',
-    standHint: 'Stand back so your entire body is visible.',
-    countdownHint: 'Get ready to dance!',
+    standHint: 'Frame your whole body for best tracking.',
+    countdownHint: 'Hologram sync starting…',
+  },
+  'space-rush': {
+    title: 'Space Rush',
+    tagline:
+      'Sprint the ISS truss deck: lean to strafe, jump over deck meteors, roll under high ones. Outrun the swarm.',
+    tip: 'Full body in frame. Auto-run — you steer with body. Low rocks: jump or change lane. High rocks: duck or change lane.',
+    overTitle: 'Decompression',
+    overHint: 'Clap or click to suit up again',
+    poseHint: 'Lean sideways to lane · Hands above head briefly to jump · Bend knees to roll',
+    bgClass: 'game-inner game-inner--rush',
+    standHint: 'Step back: hips, knees, and shoulders visible for lane and dodge tracking.',
+    countdownHint: 'Airlock cycling…',
   },
 }
 
@@ -72,6 +85,7 @@ export default function App() {
     stopBgMusic()
     stopFruitNinjaBg()
     stopDanceMusic()
+    stopSpaceRushBg()
     setError(msg)
     setPlaying(false)
     setPoseReady(false)
@@ -98,6 +112,7 @@ export default function App() {
     stopBgMusic()
     stopFruitNinjaBg()
     stopDanceMusic()
+    stopSpaceRushBg()
     setPlaying(false)
     setPoseReady(false)
     setError(null)
@@ -108,6 +123,7 @@ export default function App() {
     stopBgMusic()
     stopFruitNinjaBg()
     stopDanceMusic()
+    stopSpaceRushBg()
     setScore(finalScore)
     setGameOver(true)
   }, [])
@@ -136,13 +152,14 @@ export default function App() {
 
   const isNinja = selectedGame === 'fruit-ninja'
   const isDance = selectedGame === 'dance'
+  const isSpaceRush = selectedGame === 'space-rush'
 
   return (
     <div className="shell">
       <header className="top-bar">
         <div className="title-block">
           <button type="button" className="back-btn" onClick={goHome}>
-            ← Games
+            ← Arcade
           </button>
           <h1>{meta.title}</h1>
           <p className="tagline">{meta.tagline}</p>
@@ -214,6 +231,55 @@ export default function App() {
             )}
           </div>
         </div>
+      ) : isSpaceRush ? (
+        <div className="ninja-arena-wrap">
+          <div className="pane-inner ninja-arena ninja-arena--rush">
+            <PoseWebcamPanel
+              enabled={playing}
+              poseKeyPointsRef={poseKeyPointsRef}
+              drawSkeleton={false}
+              onClap={playing ? handleClap : undefined}
+              onError={onPoseError}
+              onModelReady={onModelReady}
+              statusHint={meta.poseHint}
+            />
+            {playing && (
+              <SpaceRushGameCanvas
+                active={playing}
+                poseReady={poseReady}
+                poseKeyPointsRef={poseKeyPointsRef}
+                sessionKey={sessionKey}
+                gameOver={gameOver}
+                onScore={setScore}
+                onGameOver={handleGameOver}
+                onRequestRestart={requestRestart}
+              />
+            )}
+            {gameOver && (
+              <div
+                className="game-over-overlay"
+                onClick={requestRestart}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') requestRestart()
+                }}
+                role="button"
+                tabIndex={0}
+              >
+                <h2 className="game-over-title">{meta.overTitle}</h2>
+                <p className="game-over-score">Score: {score}</p>
+                <p className="game-over-hint">{meta.overHint}</p>
+              </div>
+            )}
+            {!playing && (
+              <div className="game-overlay">
+                <p className="overlay-lead">{meta.standHint}</p>
+                <button type="button" className="primary" onClick={start}>
+                  Start Camera & Game
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       ) : isNinja ? (
         <div className="ninja-arena-wrap">
           <div className="pane-inner ninja-arena">
@@ -265,7 +331,7 @@ export default function App() {
       ) : (
         <div className="split">
           <section className="pane pane-camera">
-            <h2 className="pane-label">You</h2>
+            <h2 className="pane-label">Pilot cam</h2>
             <div className="pane-inner">
               <PoseWebcamPanel
                 enabled={playing}
@@ -279,7 +345,7 @@ export default function App() {
           </section>
 
           <section className="pane pane-game">
-            <h2 className="pane-label">Game</h2>
+            <h2 className="pane-label">Viewport</h2>
             <div className={`pane-inner ${meta.bgClass}`}>
               {playing && (
                 <FlappyGameCanvas

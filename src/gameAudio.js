@@ -40,42 +40,69 @@ export async function playFlapSound() {
   osc.stop(now + 0.09)
 }
 
-function playBgChord() {
+let flappyEpicStep = 0
+
+const FLAPPY_EPIC_CHORDS = [
+  { bass: 55.0, notes: [110.0, 164.81, 220.0, 277.18] },
+  { bass: 43.65, notes: [87.31, 130.81, 174.61, 233.08] },
+  { bass: 65.41, notes: [130.81, 164.81, 196.0, 261.63] },
+  { bass: 49.0, notes: [98.0, 123.47, 146.83, 196.0] },
+]
+
+function playFlappyEpicChord() {
   if (!bgGain) return
   const c = getContext()
   if (!c) return
   const now = c.currentTime
-  const root = 261.63
-  const fifth = root * 1.5
-  const high = root * 2
-  ;[root, fifth, high].forEach((freq) => {
-    const osc = c.createOscillator()
-    const env = c.createGain()
-    osc.type = 'sine'
-    osc.frequency.value = freq
-    osc.connect(env)
-    env.connect(bgGain)
-    env.gain.setValueAtTime(0, now)
-    env.gain.linearRampToValueAtTime(0.015, now + 0.1)
-    env.gain.linearRampToValueAtTime(0.008, now + 0.7)
-    env.gain.linearRampToValueAtTime(0, now + 1.0)
-    osc.start(now)
-    osc.stop(now + 1.05)
-  })
+  const chord = FLAPPY_EPIC_CHORDS[flappyEpicStep % FLAPPY_EPIC_CHORDS.length]
+  flappyEpicStep += 1
+  const hold = 2.8
+
+  const sub = c.createOscillator()
+  const subG = c.createGain()
+  sub.type = 'sine'
+  sub.frequency.value = chord.bass
+  subG.gain.setValueAtTime(0, now)
+  subG.gain.linearRampToValueAtTime(0.045, now + 0.45)
+  subG.gain.linearRampToValueAtTime(0.032, now + hold * 0.75)
+  subG.gain.linearRampToValueAtTime(0.001, now + hold)
+  sub.connect(subG)
+  subG.connect(bgGain)
+  sub.start(now)
+  sub.stop(now + hold + 0.05)
+
+  for (let i = 0; i < 3; i += 1) {
+    const freq = chord.notes[i]
+    const tri = c.createOscillator()
+    const triE = c.createGain()
+    tri.type = 'sine'
+    tri.frequency.value = freq
+    tri.detune.value = (i - 1) * 3
+    triE.gain.setValueAtTime(0, now)
+    triE.gain.linearRampToValueAtTime(0.011 / (1 + i * 0.25), now + 0.65)
+    triE.gain.linearRampToValueAtTime(0.008 / (1 + i * 0.25), now + hold * 0.8)
+    triE.gain.linearRampToValueAtTime(0.001, now + hold)
+    tri.connect(triE)
+    triE.connect(bgGain)
+    tri.start(now)
+    tri.stop(now + hold + 0.05)
+  }
 }
 
 export async function startBgMusic() {
   const c = getContext()
   if (!c || bgInterval) return
   await ensureRunning(c)
+  flappyEpicStep = 0
   bgGain = c.createGain()
-  bgGain.gain.value = 0.18
+  bgGain.gain.value = 0.12
   bgGain.connect(c.destination)
-  playBgChord()
-  bgInterval = setInterval(playBgChord, 2000)
+  playFlappyEpicChord()
+  bgInterval = setInterval(playFlappyEpicChord, 3400)
 }
 
 export function stopBgMusic() {
+  flappyEpicStep = 0
   if (bgInterval) {
     clearInterval(bgInterval)
     bgInterval = null
@@ -222,6 +249,80 @@ export function stopFruitNinjaBg() {
     const c = getContext()
     if (c) { try { fnBgGain.gain.linearRampToValueAtTime(0, c.currentTime + 0.2) } catch { /* */ } }
     setTimeout(() => { try { fnBgGain.disconnect() } catch { /* */ }; fnBgGain = null }, 250)
+  }
+}
+
+/* ── Space Rush runner ─────────────────────────────── */
+
+let srBgInterval = null
+let srBgGain = null
+let srPulseStep = 0
+
+function playSpaceRushPulse() {
+  if (!srBgGain) return
+  const c = getContext()
+  if (!c) return
+  const now = c.currentTime
+  const root = 65 + (srPulseStep % 4) * 8
+  srPulseStep += 1
+
+  const osc = c.createOscillator()
+  const g = c.createGain()
+  osc.type = 'triangle'
+  osc.frequency.setValueAtTime(root, now)
+  osc.frequency.exponentialRampToValueAtTime(root * 0.92, now + 0.12)
+  g.gain.setValueAtTime(0, now)
+  g.gain.linearRampToValueAtTime(0.022, now + 0.02)
+  g.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
+  osc.connect(g)
+  g.connect(srBgGain)
+  osc.start(now)
+  osc.stop(now + 0.22)
+
+  const hi = c.createOscillator()
+  const hg = c.createGain()
+  hi.type = 'sine'
+  hi.frequency.value = root * 4.2
+  hg.gain.setValueAtTime(0, now)
+  hg.gain.linearRampToValueAtTime(0.006, now + 0.015)
+  hg.gain.exponentialRampToValueAtTime(0.001, now + 0.14)
+  hi.connect(hg)
+  hg.connect(srBgGain)
+  hi.start(now)
+  hi.stop(now + 0.16)
+}
+
+export async function startSpaceRushBg() {
+  const c = getContext()
+  if (!c || srBgInterval) return
+  await ensureRunning(c)
+  srPulseStep = 0
+  srBgGain = c.createGain()
+  srBgGain.gain.value = 0.11
+  srBgGain.connect(c.destination)
+  playSpaceRushPulse()
+  srBgInterval = setInterval(playSpaceRushPulse, 520)
+}
+
+export function stopSpaceRushBg() {
+  srPulseStep = 0
+  if (srBgInterval) {
+    clearInterval(srBgInterval)
+    srBgInterval = null
+  }
+  if (srBgGain) {
+    const c = getContext()
+    if (c) {
+      try {
+        srBgGain.gain.linearRampToValueAtTime(0, c.currentTime + 0.2)
+      } catch { /* ignore */ }
+    }
+    setTimeout(() => {
+      try {
+        srBgGain.disconnect()
+      } catch { /* ignore */ }
+      srBgGain = null
+    }, 250)
   }
 }
 

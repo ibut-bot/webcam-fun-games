@@ -30,6 +30,7 @@ export function createDanceGame(canvas, hooks) {
   let userHipCenter = null
   let userScaleX = 0
   let userScaleY = 0
+  let backdropTick = 0
 
   function resize() {
     const p = canvas.parentElement
@@ -347,6 +348,26 @@ export function createDanceGame(canvas, hooks) {
     ctx.restore()
   }
 
+  function drawCosmosBackdrop() {
+    const g = ctx.createLinearGradient(0, 0, width, height)
+    g.addColorStop(0, 'rgba(22, 14, 48, 0.55)')
+    g.addColorStop(0.5, 'rgba(12, 18, 42, 0.45)')
+    g.addColorStop(1, 'rgba(8, 10, 32, 0.52)')
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, width, height)
+    const n = 36
+    for (let i = 0; i < n; i++) {
+      const t = backdropTick * 0.025 + i
+      const sx = ((Math.sin(i * 12.9898 + t * 0.01) * 0.5 + 0.5) * width)
+      const sy = ((Math.cos(i * 4.141 + t * 0.008) * 0.5 + 0.5) * height)
+      const a = 0.08 + 0.12 * Math.sin(t + i)
+      ctx.fillStyle = `rgba(167, 196, 255, ${a})`
+      ctx.beginPath()
+      ctx.arc(sx, sy, 0.9, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  }
+
   function drawHUD() {
     ctx.save()
 
@@ -448,8 +469,8 @@ export function createDanceGame(canvas, hooks) {
 
   function draw() {
     ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
-    ctx.fillRect(0, 0, width, height)
+    backdropTick++
+    drawCosmosBackdrop()
     const pd = h.getPoseKeypoints?.()
     drawMatchGlow(currentPose, pd)
     drawTargetPose(currentPose)
@@ -468,6 +489,7 @@ export function createDanceGame(canvas, hooks) {
     resize,
     start(songObj) {
       song = songObj
+      backdropTick = 0
       score = 0; matchQuality = 0; limbMatchMap = {}
       combo = 0; bestCombo = 0; currentPoseId = null; currentPose = null
       poseMatchedThisChange = false; showMatchText = 0; songProgress = 0
